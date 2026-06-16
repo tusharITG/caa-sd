@@ -1,0 +1,731 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Titan+One&family=Archivo:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://www.youtube.com/iframe_api"></script>
+<style>
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;background:#0F0F12;-webkit-font-smoothing:antialiased;}
+  ::selection{background:#D6FF3F;color:#0F0F12;}
+  button:focus-visible,a:focus-visible{outline:2px solid #D6FF3F;outline-offset:2px;}
+  @keyframes wzBlink{0%,100%{opacity:1}50%{opacity:0.2}}
+  @keyframes wzChatIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+  @keyframes wzPop5{0%{opacity:0;transform:translateY(0) scale(0.8)}28%{opacity:1;transform:translateY(-6px) scale(1.12)}100%{opacity:0;transform:translateY(-20px) scale(1)}}
+  @keyframes wzSold{0%{opacity:0;transform:scale(0.88) rotate(-3deg)}60%{opacity:1;transform:scale(1.07) rotate(-3deg)}100%{opacity:1;transform:scale(1) rotate(-3deg)}}
+  @keyframes wzRing{0%{box-shadow:0 0 0 0 rgba(214,255,63,0.55)}70%{box-shadow:0 0 0 14px rgba(214,255,63,0)}100%{box-shadow:0 0 0 0 rgba(214,255,63,0)}}
+  @keyframes wzTick{0%{transform:scale(1)}40%{transform:scale(1.08)}100%{transform:scale(1)}}
+  @keyframes wzTickB{0%{transform:scale(1)}40%{transform:scale(1.08)}100%{transform:scale(1)}}
+  @keyframes wzCue{0%,100%{transform:translateY(0);opacity:0.45}50%{transform:translateY(7px);opacity:1}}
+
+  @keyframes wzExpBar{0%{width:100%;background:#D6FF3F}45%{width:30%;background:#D6FF3F}58%{width:18%;background:#FF3340}60%{width:48%;background:#D6FF3F}90%{width:6%;background:#FF3340}100%{width:6%;background:#FF3340}}
+  @keyframes wzExpBid{0%,52%{opacity:0;transform:translateY(8px)}60%{opacity:1;transform:none}74%,100%{opacity:0;transform:translateY(-6px)}}
+  @keyframes wzExpExt{0%,58%{opacity:0;transform:translateY(0) scale(0.8)}63%{opacity:1;transform:translateY(-6px) scale(1.1)}82%,100%{opacity:0;transform:translateY(-16px) scale(1)}}
+  @media (prefers-reduced-motion: reduce){
+    *{animation-duration:0.001ms !important;animation-iteration-count:1 !important;transition-duration:0.001ms !important;}
+  }
+</style>
+</helmet>
+
+<div style="position:relative; background:#0F0F12;">
+
+  <!-- PROGRESS BAR -->
+  <div style="position:fixed; top:0; left:0; right:0; height:3px; background:rgba(255,255,255,0.05); z-index:60;">
+    <div style="height:100%; background:#D6FF3F; width:{{ scrollPct }}%;"></div>
+  </div>
+
+  <!-- TOP BAR -->
+  <header style="position:fixed; top:3px; left:0; right:0; z-index:60; display:flex; align-items:center; justify-content:space-between; padding:12px clamp(16px,4vw,40px); pointer-events:none;">
+    <div style="display:flex; align-items:center; gap:10px; pointer-events:auto;">
+      <img src="https://unavatar.io/youtube/@Wenzel_TCG" alt="" onError="{{ hideImg }}" style="width:26px; height:26px; border-radius:999px; object-fit:cover; border:1px solid #2A2A31;" />
+      <span style="font-family:'Anton',sans-serif; font-size:17px; letter-spacing:0.01em; color:#F6F5F2;">WENZEL TCG</span>
+      <span style="font-family:'IBM Plex Mono',monospace; font-size:11px; color:#9C9CA6;">· The Auction Floor</span>
+    </div>
+    <div style="display:flex; align-items:center; gap:10px; pointer-events:auto;">
+      <button onClick="{{ onToggleSound }}" aria-label="Toggle sound" style="display:inline-flex; align-items:center; gap:7px; cursor:pointer; background:rgba(24,24,29,0.8); backdrop-filter:blur(8px); border:1px solid #2A2A31; color:#F6F5F2; border-radius:999px; padding:6px 12px; font-family:'IBM Plex Mono',monospace; font-size:11px;">
+        <sc-if value="{{ soundOn }}" hint-placeholder-val="{{ false }}">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#D6FF3F" stroke-width="1.6"><path d="M11 5 6 9H2v6h4l5 4V5Z"/><path d="M15.5 8.5a5 5 0 0 1 0 7M18.5 5.5a9 9 0 0 1 0 13"/></svg>
+          <span style="color:#D6FF3F;">SOUND ON</span>
+        </sc-if>
+        <sc-if value="{{ soundOff }}" hint-placeholder-val="{{ true }}">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M11 5 6 9H2v6h4l5 4V5Z"/><path d="m22 9-6 6M16 9l6 6"/></svg>
+          <span>SOUND OFF</span>
+        </sc-if>
+      </button>
+      <span style="font-family:'Titan One',sans-serif; font-size:11px; color:#9C9CA6; background:rgba(24,24,29,0.8); backdrop-filter:blur(8px); border:1px solid #2A2A31; border-radius:999px; padding:6px 12px;">Concept preview</span>
+    </div>
+  </header>
+
+  <!-- DOT RAIL -->
+  <nav aria-label="Section navigation" style="position:fixed; top:50%; right:14px; transform:translateY(-50%); z-index:60; display:flex; flex-direction:column; gap:11px;">
+    <sc-for list="{{ dots }}" as="d" hint-placeholder-count="12">
+      <button onClick="{{ d.onClick }}" aria-label="{{ d.name }}" title="{{ d.name }}" style="width:9px; height:9px; padding:0; border-radius:999px; border:none; cursor:pointer; background:{{ d.color }}; transition:transform 0.2s, background 0.2s; transform:scale({{ d.scale }});"></button>
+    </sc-for>
+  </nav>
+
+  <!-- SCROLL CONTAINER -->
+  <div data-scroll="1" style="position:relative;">
+
+    <!-- ============ BEAT 01 — COLD OPEN ============ -->
+    <section data-beat="0" data-screen-label="01 · Cover" style="position:relative; min-height:100vh; scroll-snap-align:start; display:flex; align-items:center; overflow:hidden; padding:clamp(80px,12vh,140px) clamp(20px,6vw,96px);">
+      <img src="https://i.ytimg.com/vi/WIwR7uRUZLY/maxresdefault.jpg" alt="" onError="{{ coverImgFallback }}" style="position:absolute; inset:0; width:100%; height:100%; object-fit:cover; opacity:0.5;" />
+      <div id="wz-yt-cover" data-yt="1" style="position:absolute; inset:0; opacity:0.5; pointer-events:none; overflow:hidden;"></div>
+      <div style="position:absolute; inset:0; background:linear-gradient(115deg, rgba(15,15,18,0.94) 0%, rgba(15,15,18,0.7) 45%, rgba(15,15,18,0.35) 100%);"></div>
+      <div data-reveal style="position:relative; max-width:1000px;">
+        <div style="display:flex; align-items:center; gap:10px; margin-bottom:22px;">
+          <span style="display:inline-flex; align-items:center; gap:6px; background:#FF3340; color:#F6F5F2; font-family:'Titan One',sans-serif; font-size:12px; letter-spacing:0.04em; padding:5px 11px; border-radius:999px;"><span style="width:7px;height:7px;border-radius:999px;background:#fff;animation:wzBlink 1.4s ease-in-out infinite;"></span>LIVE</span>
+          <span style="font-family:'Titan One',sans-serif; font-size:13px; letter-spacing:0.04em; color:#9C9CA6; text-transform:uppercase;">Concept preview · Built for Wenzel TCG</span>
+        </div>
+        <h1 style="font-family:'Anton',sans-serif; font-size:clamp(50px,8vw,116px); line-height:0.98; letter-spacing:-0.01em; text-transform:uppercase; color:#F6F5F2; margin:0;">Every rip,<br/>now a <span style="color:#B388FF; text-shadow:0 0 32px rgba(179,136,255,0.4);">live auction.</span></h1>
+        <p style="font-family:'Archivo',sans-serif; font-weight:500; font-size:clamp(17px,2vw,22px); color:#9C9CA6; max-width:560px; margin:32px 0 0; line-height:1.5;">The live-bidding floor — on your store, under your brand, with no middleman taking a cut.</p>
+        <div style="display:inline-flex; align-items:center; gap:12px; margin-top:28px; font-family:'IBM Plex Mono',monospace; font-size:14px; color:#9C9CA6; border:1px solid #2A2A31; background:rgba(24,24,29,0.6); border-radius:999px; padding:9px 16px;">
+          <span style="color:#F2C14E;">NEXT BREAK</span><span style="color:#2A2A31;">·</span><span>FRI 7PM ET</span><span style="color:#2A2A31;">·</span><span style="color:#F6F5F2; font-variant-numeric:tabular-nums; letter-spacing:0.02em;">{{ coverCountdown }}</span>
+        </div>
+      </div>
+      <div style="position:absolute; bottom:26px; left:50%; transform:translateX(-50%); display:flex; flex-direction:column; align-items:center; gap:6px; color:#9C9CA6; font-family:'IBM Plex Mono',monospace; font-size:11px; letter-spacing:0.08em;">
+        <span>SCROLL TO RIP</span>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" style="animation:wzCue 1.8s ease-in-out infinite;"><path d="M12 5v14M5 12l7 7 7-7"/></svg>
+      </div>
+    </section>
+
+    <!-- ============ BEAT 02 — BIG IDEA ============ -->
+    <section data-beat="1" data-screen-label="02 · Big idea" style="position:relative; min-height:100vh; scroll-snap-align:start; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; padding:clamp(80px,12vh,140px) clamp(20px,6vw,96px); background:radial-gradient(80% 80% at 50% 40%, #18181D 0%, #0F0F12 75%);">
+      <div data-reveal style="max-width:900px;">
+        <div style="font-family:'Titan One',sans-serif; font-size:13px; letter-spacing:0.04em; color:#9C9CA6; text-transform:uppercase; margin-bottom:26px;"><span style="color:#D6FF3F;">01</span> · The big idea</div>
+        <h2 style="font-family:'Anton',sans-serif; font-size:clamp(44px,8vw,104px); line-height:0.92; letter-spacing:-0.01em; text-transform:uppercase; color:#F6F5F2; margin:0;">The floor is yours.</h2>
+        <p style="font-family:'Archivo',sans-serif; font-weight:500; font-size:clamp(17px,2vw,23px); color:#9C9CA6; max-width:660px; margin:28px auto 0; line-height:1.5;">Collectors watch your break and bid in real time — right on <span style="color:#F6F5F2;">wenzeltcg.com</span>. You keep the brand, the audience, and the margin. No marketplace fee on a single hit.</p>
+      </div>
+    </section>
+
+    <!-- ============ BEAT 03 — THREE SURFACES ============ -->
+    <section data-beat="2" data-screen-label="03 · How it fits" style="position:relative; min-height:100vh; scroll-snap-align:start; display:flex; flex-direction:column; justify-content:center; padding:clamp(80px,12vh,140px) clamp(20px,6vw,96px);">
+      <div data-reveal style="">
+        <div style="font-family:'Titan One',sans-serif; font-size:13px; letter-spacing:0.04em; color:#9C9CA6; text-transform:uppercase; margin-bottom:14px;"><span style="color:#D6FF3F;">02</span> · How it fits together</div>
+        <h2 style="font-family:'Anton',sans-serif; font-size:clamp(34px,5vw,68px); line-height:0.95; letter-spacing:-0.01em; text-transform:uppercase; color:#F6F5F2; margin:0 0 40px; max-width:760px;">Three surfaces, one show.</h2>
+        <div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); gap:16px; max-width:1100px;">
+          <div style="background:#18181D; border:1px solid #2A2A31; border-radius:16px; padding:24px; box-shadow:0 1px 0 rgba(255,255,255,0.04) inset;">
+            <div style="font-family:'Titan One',sans-serif; font-size:12px; color:#D6FF3F; letter-spacing:0.04em;">FOR BUYERS</div>
+            <div style="font-family:'Anton',sans-serif; font-size:32px; text-transform:uppercase; color:#F6F5F2; margin:10px 0 8px;">The Floor</div>
+            <p style="font-family:'Archivo',sans-serif; font-size:15px; color:#9C9CA6; margin:0; line-height:1.5;">Where collectors watch and bid.</p>
+          </div>
+          <div style="background:#18181D; border:1px solid #2A2A31; border-radius:16px; padding:24px; box-shadow:0 1px 0 rgba(255,255,255,0.04) inset;">
+            <div style="font-family:'Titan One',sans-serif; font-size:12px; color:#D6FF3F; letter-spacing:0.04em;">FOR YOU</div>
+            <div style="font-family:'Anton',sans-serif; font-size:32px; text-transform:uppercase; color:#F6F5F2; margin:10px 0 8px;">The Booth</div>
+            <p style="font-family:'Archivo',sans-serif; font-size:15px; color:#9C9CA6; margin:0; line-height:1.5;">Where you run the whole show.</p>
+          </div>
+          <div style="background:#18181D; border:1px solid #2A2A31; border-radius:16px; padding:24px; box-shadow:0 1px 0 rgba(255,255,255,0.04) inset;">
+            <div style="font-family:'Titan One',sans-serif; font-size:12px; color:#D6FF3F; letter-spacing:0.04em;">FOR ADMIN</div>
+            <div style="font-family:'Anton',sans-serif; font-size:32px; text-transform:uppercase; color:#F6F5F2; margin:10px 0 8px;">The Back Office</div>
+            <p style="font-family:'Archivo',sans-serif; font-size:15px; color:#9C9CA6; margin:0; line-height:1.5;">Where every bid, winner, and order lands — in Shopify.</p>
+          </div>
+        </div>
+        <p style="font-family:'IBM Plex Mono',monospace; font-size:13px; color:#9C9CA6; margin:24px 0 0;">Next three beats — all live and interactive. ↓</p>
+      </div>
+    </section>
+
+    <!-- ============ BEAT 04 — THE FLOOR (interactive hero) ============ -->
+    <section data-beat="3" data-screen-label="04 · The Floor" style="position:relative; min-height:100vh; scroll-snap-align:start; display:flex; flex-direction:column; justify-content:center; padding:clamp(80px,11vh,130px) clamp(20px,6vw,96px); background:#0F0F12;">
+      <div style="display:grid; grid-template-columns:1fr; gap:36px; align-items:center; max-width:1180px; margin:0 auto; width:100%;" data-reveal class="wz-floorgrid">
+        <div>
+          <div style="font-family:'Titan One',sans-serif; font-size:13px; letter-spacing:0.04em; color:#9C9CA6; text-transform:uppercase; margin-bottom:14px;"><span style="color:#D6FF3F;">03</span> · The Floor</div>
+          <h2 style="font-family:'Anton',sans-serif; font-size:clamp(34px,5vw,68px); line-height:0.92; letter-spacing:-0.01em; text-transform:uppercase; color:#F6F5F2; margin:0; max-width:560px;">Bid in real time. Watch it happen.</h2>
+          <p style="font-family:'Archivo',sans-serif; font-size:clamp(15px,1.6vw,18px); color:#9C9CA6; max-width:440px; margin:20px 0 0; line-height:1.5;">Tap <span style="color:#D6FF3F; font-weight:700;">BID</span> — the price climbs, the clock pops <span style="color:#F2C14E; font-weight:700;">+5s</span>, and the winner's card is charged automatically.</p>
+          <div style="display:inline-flex; align-items:center; gap:8px; margin-top:22px; font-family:'IBM Plex Mono',monospace; font-size:12px; color:#9C9CA6;">
+            <span style="width:8px; height:8px; border-radius:999px; background:#D6FF3F; box-shadow:0 0 10px rgba(214,255,63,0.6);"></span>This module is live — try it.
+          </div>
+        </div>
+        <div style="display:flex; justify-content:center;">
+          <div style="position:relative; height:min(74vh,680px); aspect-ratio:9/19.5; background:#000; border:1px solid #2A2A31; border-radius:44px; padding:8px; box-shadow:0 30px 80px rgba(0,0,0,0.55);">
+            <div style="position:absolute; top:8px; left:50%; transform:translateX(-50%); width:34%; height:22px; background:#000; border-radius:0 0 16px 16px; z-index:5;"></div>
+            <div style="width:100%; height:100%; border-radius:36px; overflow:hidden;">
+              <dc-import name="AuctionPhone" s="{{ aucFloor }}" hint-size="100%,100%" style="width:100%; height:100%;"></dc-import>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ BEAT 05 — EVERY SCREEN ============ -->
+    <section data-beat="4" data-screen-label="05 · Every screen" style="position:relative; min-height:100vh; scroll-snap-align:start; display:flex; flex-direction:column; justify-content:center; padding:clamp(80px,11vh,130px) clamp(20px,6vw,96px); background:radial-gradient(90% 70% at 70% 30%, #16161B 0%, #0F0F12 70%);">
+      <div data-reveal style="max-width:1240px; margin:0 auto; width:100%;">
+        <div style="font-family:'Titan One',sans-serif; font-size:13px; letter-spacing:0.04em; color:#9C9CA6; text-transform:uppercase; margin-bottom:14px;"><span style="color:#D6FF3F;">04</span> · One show, every screen</div>
+        <h2 style="font-family:'Anton',sans-serif; font-size:clamp(30px,4.4vw,60px); line-height:0.95; letter-spacing:-0.01em; text-transform:uppercase; color:#F6F5F2; margin:0; max-width:900px;">Phone in hand or laptop open — same live floor.</h2>
+        <p style="font-family:'Archivo',sans-serif; font-size:clamp(15px,1.6vw,18px); color:#9C9CA6; max-width:680px; margin:18px 0 32px; line-height:1.5;">Most of your audience bids from their phone mid-stream. The floor is built mobile-first and mirrors instantly to desktop — same lot, same clock, same bid. Place one and watch both update.</p>
+        <div style="display:flex; gap:24px; align-items:center; flex-wrap:wrap; justify-content:center;">
+          <div style="position:relative; flex:1 1 540px; min-width:300px; max-width:760px;">
+            <div style="background:#000; border:1px solid #2A2A31; border-radius:14px; overflow:hidden; box-shadow:0 24px 60px rgba(0,0,0,0.5);">
+              <div style="display:flex; align-items:center; gap:7px; padding:9px 12px; background:#18181D; border-bottom:1px solid #2A2A31;">
+                <span style="width:11px;height:11px;border-radius:999px;background:#FF3340;"></span>
+                <span style="width:11px;height:11px;border-radius:999px;background:#F2C14E;"></span>
+                <span style="width:11px;height:11px;border-radius:999px;background:#D6FF3F;"></span>
+                <span style="margin-left:10px; font-family:'IBM Plex Mono',monospace; font-size:11px; color:#9C9CA6; background:#0F0F12; border:1px solid #2A2A31; border-radius:6px; padding:3px 10px;">wenzeltcg.com/live</span>
+              </div>
+              <div style="aspect-ratio:16/9; width:100%;">
+                <dc-import name="AuctionStage" s="{{ aucM5d }}" hint-size="100%,100%" style="width:100%; height:100%;"></dc-import>
+              </div>
+            </div>
+            <div style="font-family:'IBM Plex Mono',monospace; font-size:11px; color:#9C9CA6; margin-top:8px; text-align:center;">Desktop · wenzeltcg.com</div>
+          </div>
+          <div style="flex:0 0 auto;">
+            <div style="position:relative; height:min(58vh,500px); aspect-ratio:9/19.5; background:#000; border:1px solid #2A2A31; border-radius:36px; padding:6px; box-shadow:0 24px 60px rgba(0,0,0,0.5);">
+              <div style="width:100%; height:100%; border-radius:30px; overflow:hidden;">
+                <dc-import name="AuctionPhone" s="{{ aucM5p }}" hint-size="100%,100%" style="width:100%; height:100%;"></dc-import>
+              </div>
+            </div>
+            <div style="font-family:'IBM Plex Mono',monospace; font-size:11px; color:#9C9CA6; margin-top:8px; text-align:center;">Phone · same engine</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ BEAT 06 — POPCORN EXPLAINER ============ -->
+    <section data-beat="5" data-screen-label="06 · The mechanic" style="position:relative; min-height:100vh; scroll-snap-align:start; display:flex; flex-direction:column; justify-content:center; padding:clamp(80px,12vh,140px) clamp(20px,6vw,96px);">
+      <div data-reveal style="max-width:1080px; margin:0 auto; width:100%;">
+        <div style="font-family:'Titan One',sans-serif; font-size:13px; letter-spacing:0.04em; color:#9C9CA6; text-transform:uppercase; margin-bottom:14px;"><span style="color:#D6FF3F;">05</span> · The mechanic</div>
+        <h2 style="font-family:'Anton',sans-serif; font-size:clamp(30px,4.4vw,60px); line-height:0.95; letter-spacing:-0.01em; text-transform:uppercase; color:#F6F5F2; margin:0; max-width:840px;">A 20-second clock that won't let a sniper win.</h2>
+        <p style="font-family:'Archivo',sans-serif; font-size:clamp(15px,1.6vw,18px); color:#9C9CA6; max-width:680px; margin:18px 0 36px; line-height:1.5;">Set any lot from <span style="color:#F6F5F2;">10 to 30 seconds</span>. A late bid adds <span style="color:#F2C14E; font-weight:700;">5 seconds</span> — so the real high bidder always gets a fair shot. It's the rapid-fire format breaks need, and the one thing off-the-shelf apps can't do under a minute.</p>
+        <div style="background:#18181D; border:1px solid #2A2A31; border-radius:16px; padding:clamp(20px,4vw,40px); position:relative; overflow:hidden;">
+          <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:18px;">
+            <span style="font-family:'Titan One',sans-serif; font-size:12px; color:#F2C14E; letter-spacing:0.04em;">LOT CLOCK</span>
+            <span style="font-family:'IBM Plex Mono',monospace; font-size:12px; color:#9C9CA6;">no-snipe protection</span>
+          </div>
+          <div style="position:relative; height:18px; border-radius:999px; background:#0F0F12; border:1px solid #2A2A31; overflow:hidden;">
+            <div style="position:absolute; left:0; top:0; bottom:0; border-radius:999px; animation:wzExpBar 6s linear infinite;"></div>
+          </div>
+          <div style="position:relative; height:54px; margin-top:14px;">
+            <div style="position:absolute; right:8%; top:0; font-family:'IBM Plex Mono',monospace; font-size:13px; color:#F6F5F2; background:#202027; border:1px solid #2A2A31; border-radius:999px; padding:6px 12px; animation:wzExpBid 6s linear infinite;">@errorhunter88 bids late</div>
+            <div style="position:absolute; right:8%; top:30px; font-family:'Titan One',sans-serif; font-size:26px; color:#F2C14E; text-shadow:0 0 16px rgba(242,193,78,0.5); animation:wzExpExt 6s linear infinite;">+5s</div>
+          </div>
+          <div style="display:flex; gap:24px; flex-wrap:wrap; margin-top:8px; font-family:'IBM Plex Mono',monospace; font-size:12px; color:#9C9CA6;">
+            <span><span style="color:#D6FF3F;">●</span> clock runs down</span>
+            <span><span style="color:#FF3340;">●</span> last 6s = danger zone</span>
+            <span><span style="color:#F2C14E;">●</span> late bid → +5s, every time</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ BEAT 07 — CARD ON FILE ============ -->
+    <section data-beat="6" data-screen-label="07 · Card on file" style="position:relative; min-height:100vh; scroll-snap-align:start; display:flex; flex-direction:column; justify-content:center; padding:clamp(80px,12vh,140px) clamp(20px,6vw,96px); background:#0F0F12;">
+      <div data-reveal style="max-width:1140px; margin:0 auto; width:100%;">
+        <div style="font-family:'Titan One',sans-serif; font-size:13px; letter-spacing:0.04em; color:#9C9CA6; text-transform:uppercase; margin-bottom:14px;"><span style="color:#D6FF3F;">06</span> · No checkout, no chasing</div>
+        <h2 style="font-family:'Anton',sans-serif; font-size:clamp(30px,4.4vw,60px); line-height:0.95; letter-spacing:-0.01em; text-transform:uppercase; color:#F6F5F2; margin:0 0 40px; max-width:760px;">Save a card once. Win, and it's done.</h2>
+        <div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); gap:16px;">
+          <div style="background:#18181D; border:1px solid #2A2A31; border-radius:16px; padding:26px; position:relative;">
+            <div style="font-family:'IBM Plex Mono',monospace; font-size:13px; color:#D6FF3F;">01</div>
+            <div style="font-family:'Anton',sans-serif; font-size:24px; text-transform:uppercase; color:#F6F5F2; margin:12px 0 8px;">Join the floor</div>
+            <p style="font-family:'Archivo',sans-serif; font-size:15px; color:#9C9CA6; margin:0; line-height:1.5;">Sign up and add a card on file. One time — a single authorization, nothing charged yet.</p>
+          </div>
+          <div style="background:#18181D; border:1px solid #2A2A31; border-radius:16px; padding:26px;">
+            <div style="font-family:'IBM Plex Mono',monospace; font-size:13px; color:#D6FF3F;">02</div>
+            <div style="font-family:'Anton',sans-serif; font-size:24px; text-transform:uppercase; color:#F6F5F2; margin:12px 0 8px;">Bid with one tap</div>
+            <p style="font-family:'Archivo',sans-serif; font-size:15px; color:#9C9CA6; margin:0; line-height:1.5;">No checkout interrupting the action. Your tap is your bid — the clock keeps rolling.</p>
+          </div>
+          <div style="background:#18181D; border:1px solid #F2C14E; border-radius:16px; padding:26px; box-shadow:0 0 0 1px rgba(242,193,78,0.15);">
+            <div style="font-family:'IBM Plex Mono',monospace; font-size:13px; color:#F2C14E;">03</div>
+            <div style="font-family:'Anton',sans-serif; font-size:24px; text-transform:uppercase; color:#F2C14E; margin:12px 0 8px;">Win → charged → shipped</div>
+            <p style="font-family:'Archivo',sans-serif; font-size:15px; color:#9C9CA6; margin:0; line-height:1.5;">The winning card is charged automatically. The hit ships that week.</p>
+          </div>
+        </div>
+        <p style="font-family:'IBM Plex Mono',monospace; font-size:12px; color:#9C9CA6; margin:22px 0 0;">Runs on Shopify Payments — the setup your store already has.</p>
+      </div>
+    </section>
+
+    <!-- ============ BEAT 08 — THE BOOTH ============ -->
+    <section data-beat="7" data-screen-label="08 · The Booth" style="position:relative; min-height:100vh; scroll-snap-align:start; display:flex; flex-direction:column; justify-content:center; padding:clamp(80px,11vh,120px) clamp(16px,4vw,64px); background:radial-gradient(90% 70% at 30% 20%, #16161B 0%, #0F0F12 70%);">
+      <div data-reveal style="max-width:1280px; margin:0 auto; width:100%;">
+        <div style="font-family:'Titan One',sans-serif; font-size:13px; letter-spacing:0.04em; color:#9C9CA6; text-transform:uppercase; margin-bottom:14px;"><span style="color:#D6FF3F;">07</span> · The Booth</div>
+        <h2 style="font-family:'Anton',sans-serif; font-size:clamp(28px,4.2vw,56px); line-height:0.95; letter-spacing:-0.01em; text-transform:uppercase; color:#F6F5F2; margin:0 0 6px; max-width:760px;">Run the whole show from one screen.</h2>
+        <p style="font-family:'Archivo',sans-serif; font-size:clamp(14px,1.5vw,17px); color:#9C9CA6; max-width:640px; margin:0 0 24px; line-height:1.5;">Queue your lots, go live, start each auction, watch the bids land, and bounce a bad actor — without leaving the stream.</p>
+
+        <!-- laptop frame -->
+        <div style="background:#000; border:1px solid #2A2A31; border-radius:14px; overflow:hidden; box-shadow:0 28px 70px rgba(0,0,0,0.55);">
+          <div style="display:flex; align-items:center; gap:10px; padding:9px 14px; background:#18181D; border-bottom:1px solid #2A2A31;">
+            <div style="display:flex; gap:6px;"><span style="width:11px;height:11px;border-radius:999px;background:#FF3340;"></span><span style="width:11px;height:11px;border-radius:999px;background:#F2C14E;"></span><span style="width:11px;height:11px;border-radius:999px;background:#D6FF3F;"></span></div>
+            <span style="font-family:'Anton',sans-serif; font-size:14px; color:#F6F5F2; margin-left:6px;">THE BOOTH</span>
+            <span style="font-family:'IBM Plex Mono',monospace; font-size:11px; color:#9C9CA6;">host console</span>
+            <span style="margin-left:auto; display:inline-flex; align-items:center; gap:6px; font-family:'IBM Plex Mono',monospace; font-size:11px; color:#9C9CA6;">{{ booth.statusText }}</span>
+          </div>
+
+          <dc-import name="Booth" b="{{ booth }}" hint-size="100%,560px" style="width:100%;"></dc-import>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ BEAT 09 — BACK OFFICE (Polaris light) ============ -->
+    <section data-beat="8" data-screen-label="09 · Back office" style="position:relative; min-height:100vh; scroll-snap-align:start; display:flex; flex-direction:column; justify-content:center; padding:clamp(80px,11vh,120px) clamp(16px,4vw,64px); background:#0F0F12;">
+      <div data-reveal style="max-width:1280px; margin:0 auto; width:100%;">
+        <div style="font-family:'Titan One',sans-serif; font-size:13px; letter-spacing:0.04em; color:#9C9CA6; text-transform:uppercase; margin-bottom:14px;"><span style="color:#D6FF3F;">08</span> · The Back Office</div>
+        <h2 style="font-family:'Anton',sans-serif; font-size:clamp(28px,4.2vw,56px); line-height:0.95; letter-spacing:-0.01em; text-transform:uppercase; color:#F6F5F2; margin:0 0 6px; max-width:820px;">Every bid, winner, and order — in Shopify.</h2>
+        <p style="font-family:'Archivo',sans-serif; font-size:clamp(14px,1.5vw,17px); color:#9C9CA6; max-width:660px; margin:0 0 24px; line-height:1.5;">It's your store's back office, not another dashboard to babysit. Auctions, bidders, bans, and orders all live in Shopify admin.</p>
+
+        <!-- browser chrome (light) -->
+        <div style="border-radius:14px; overflow:hidden; box-shadow:0 28px 70px rgba(0,0,0,0.5); border:1px solid #2A2A31;">
+          <div style="display:flex; align-items:center; gap:10px; padding:9px 14px; background:#EBEBEB; border-bottom:1px solid #D9D9D9;">
+            <div style="display:flex; gap:6px;"><span style="width:11px;height:11px;border-radius:999px;background:#FF5F57;"></span><span style="width:11px;height:11px;border-radius:999px;background:#FEBC2E;"></span><span style="width:11px;height:11px;border-radius:999px;background:#28C840;"></span></div>
+            <span style="margin-left:8px; font-family:'IBM Plex Mono',monospace; font-size:11px; color:#6D7175; background:#fff; border:1px solid #D9D9D9; border-radius:6px; padding:4px 12px;">admin.shopify.com/store/wenzel-tcg</span>
+          </div>
+
+          <div style="height:480px; background:#F1F1F1;">
+            <x-import component-from-global-scope="wenzel-back-office" from="./back-office.js" hint-size="100%,480px" style="display:block; width:100%; height:100%;"></x-import>
+          </div>
+      </div>
+    </section>
+
+    <!-- ============ BEAT 10 — BUILT IN ============ -->
+    <section data-beat="9" data-screen-label="10 · Built in" style="position:relative; min-height:100vh; scroll-snap-align:start; display:flex; flex-direction:column; justify-content:center; padding:clamp(80px,11vh,130px) clamp(20px,6vw,96px); background:radial-gradient(90% 70% at 20% 30%, #16161B 0%, #0F0F12 70%);">
+      <div data-reveal style="max-width:1200px; margin:0 auto; width:100%;">
+        <div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(300px,1fr)); gap:32px; align-items:center;">
+          <div>
+            <div style="font-family:'Titan One',sans-serif; font-size:13px; letter-spacing:0.04em; color:#9C9CA6; text-transform:uppercase; margin-bottom:14px;"><span style="color:#D6FF3F;">09</span> · Not a new silo</div>
+            <h2 style="font-family:'Anton',sans-serif; font-size:clamp(30px,4.4vw,60px); line-height:0.95; letter-spacing:-0.01em; text-transform:uppercase; color:#F6F5F2; margin:0;">It lives on the store you already run.</h2>
+            <p style="font-family:'Archivo',sans-serif; font-size:clamp(15px,1.6vw,18px); color:#9C9CA6; margin:20px 0 0; line-height:1.5; max-width:480px;">Your products, your Shopify checkout, your YouTube stream — wired together. Nothing migrates. Nothing gets rebuilt. The floor just turns on.</p>
+          </div>
+          <div style="position:relative; border-radius:16px; overflow:hidden; border:1px solid #2A2A31; aspect-ratio:4/3; box-shadow:0 24px 60px rgba(0,0,0,0.5);">
+            <img src="https://wenzeltcg.com/cdn/shop/files/IMG_0271.webp" alt="Collin Wenzel" onError="{{ founderFallback }}" style="position:absolute; inset:0; width:100%; height:100%; object-fit:cover;" />
+            <div style="position:absolute; inset:0; background:linear-gradient(180deg,transparent 50%,rgba(15,15,18,0.85) 100%);"></div>
+            <div style="position:absolute; bottom:14px; left:16px; display:flex; gap:22px; font-family:'IBM Plex Mono',monospace; color:#F6F5F2;">
+              <div><div style="font-size:20px; font-weight:500; color:#D6FF3F;">300K+</div><div style="font-size:11px; color:#9C9CA6;">subscribers</div></div>
+              <div><div style="font-size:20px; font-weight:500; color:#D6FF3F;">94K+</div><div style="font-size:11px; color:#9C9CA6;">eBay items sold</div></div>
+              <div><div style="font-size:20px; font-weight:500; color:#D6FF3F;">100%</div><div style="font-size:11px; color:#9C9CA6;">feedback</div></div>
+            </div>
+          </div>
+        </div>
+        <div style="margin-top:32px;">
+          <div style="font-family:'IBM Plex Mono',monospace; font-size:12px; color:#9C9CA6; margin-bottom:12px;">STRAIGHT OFF THE STREAM</div>
+          <div style="display:flex; gap:12px; overflow-x:auto; padding-bottom:6px;">
+            <sc-for list="{{ shorts }}" as="sh" hint-placeholder-count="0">
+              <a href="{{ sh.href }}" target="_blank" rel="noopener" style="flex:0 0 auto; width:128px; text-decoration:none;">
+                <div style="position:relative; width:128px; height:84px; border-radius:10px; overflow:hidden; border:1px solid #2A2A31;">
+                  <img src="{{ sh.thumb }}" alt="" style="width:100%; height:100%; object-fit:cover;" />
+                  <div style="position:absolute; inset:0; background:linear-gradient(180deg,transparent 50%,rgba(0,0,0,0.6) 100%);"></div>
+                </div>
+                <div style="font-family:'Archivo',sans-serif; font-size:12px; color:#9C9CA6; margin-top:6px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">{{ sh.label }}</div>
+              </a>
+            </sc-for>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ BEAT 11 — THE DIFFERENCE ============ -->
+    <section data-beat="10" data-screen-label="11 · The difference" style="position:relative; min-height:100vh; scroll-snap-align:start; display:flex; flex-direction:column; justify-content:center; padding:clamp(80px,12vh,140px) clamp(20px,6vw,96px); background:#0F0F12;">
+      <div data-reveal style="max-width:1080px; margin:0 auto; width:100%;">
+        <div style="font-family:'Titan One',sans-serif; font-size:13px; letter-spacing:0.04em; color:#9C9CA6; text-transform:uppercase; margin-bottom:14px;"><span style="color:#D6FF3F;">10</span> · The difference</div>
+        <h2 style="font-family:'Anton',sans-serif; font-size:clamp(30px,4.4vw,60px); line-height:0.95; letter-spacing:-0.01em; text-transform:uppercase; color:#F6F5F2; margin:0 0 34px; max-width:720px;">Built for the way you actually rip.</h2>
+        <div style="display:flex; flex-direction:column; gap:1px; background:#2A2A31; border:1px solid #2A2A31; border-radius:16px; overflow:hidden;">
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:1px; background:#2A2A31;">
+            <div style="background:#0F0F12; padding:14px 20px; font-family:'IBM Plex Mono',monospace; font-size:12px; color:#9C9CA6; letter-spacing:0.04em;">THE USUAL WAY</div>
+            <div style="background:#16161B; padding:14px 20px; font-family:'IBM Plex Mono',monospace; font-size:12px; color:#D6FF3F; letter-spacing:0.04em;">YOUR FLOOR</div>
+          </div>
+          <sc-for list="{{ diffRows }}" as="r" hint-placeholder-count="4">
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:1px; background:#2A2A31;">
+              <div style="background:#0F0F12; padding:18px 20px; font-family:'Archivo',sans-serif; font-size:clamp(14px,1.5vw,16px); color:#9C9CA6; line-height:1.4;">{{ r.bad }}</div>
+              <div style="background:#16161B; padding:18px 20px; font-family:'Archivo',sans-serif; font-weight:700; font-size:clamp(14px,1.5vw,16px); color:#F6F5F2; line-height:1.4;">{{ r.good }}</div>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ BEAT 12 — CLOSE ============ -->
+    <section data-beat="11" data-screen-label="12 · What you own" style="position:relative; min-height:100vh; scroll-snap-align:start; display:flex; flex-direction:column; justify-content:center; padding:clamp(80px,12vh,140px) clamp(20px,6vw,96px); background:radial-gradient(80% 80% at 50% 30%, #18181D 0%, #0F0F12 75%);">
+      <div data-reveal style="max-width:880px; margin:0 auto; width:100%;">
+        <div style="font-family:'Titan One',sans-serif; font-size:13px; letter-spacing:0.04em; color:#9C9CA6; text-transform:uppercase; margin-bottom:18px;"><span style="color:#D6FF3F;">11</span> · What you own</div>
+        <h2 style="font-family:'Anton',sans-serif; font-size:clamp(34px,5.2vw,80px); line-height:0.92; letter-spacing:-0.01em; text-transform:uppercase; color:#F6F5F2; margin:0;">You own the floor. Not a subscription to it.</h2>
+        <p style="font-family:'Archivo',sans-serif; font-size:clamp(16px,1.8vw,20px); color:#9C9CA6; margin:24px 0 0; line-height:1.5; max-width:620px;">A private Shopify app, built in your environment. You own the IP. No marketplace cut, no mandatory maintenance, built to scale when you are.</p>
+        <p style="font-family:'Archivo',sans-serif; font-size:14px; color:#9C9CA6; margin:22px 0 0;">Built by IT-Geeks — Shopify Platinum Partner since 2015 · 10,000+ stores · 5,000+ five-star reviews.</p>
+        <div style="margin-top:32px; display:flex; flex-wrap:wrap; align-items:center; gap:16px;">
+          <span style="display:inline-flex; align-items:center; gap:10px; background:#D6FF3F; color:#0F0F12; font-family:'Archivo',sans-serif; font-weight:700; font-size:16px; padding:14px 24px; border-radius:12px;">We're scoping it now. Next, we build it.</span>
+        </div>
+        <div style="margin-top:48px; padding-top:24px; border-top:1px solid #2A2A31; display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:16px;">
+          <div>
+            <div style="font-family:'Anton',sans-serif; font-size:20px; color:#F6F5F2; letter-spacing:0.02em;">IT-GEEKS</div>
+            <div style="font-family:'IBM Plex Mono',monospace; font-size:12px; color:#9C9CA6; margin-top:2px;">From Vision to Victory — We Power Your Growth.</div>
+          </div>
+          <div style="display:flex; flex-wrap:wrap; gap:14px;">
+            <sc-for list="{{ links }}" as="lnk" hint-placeholder-count="5">
+              <a href="{{ lnk.href }}" target="_blank" rel="noopener" style="font-family:'IBM Plex Mono',monospace; font-size:12px; color:#9C9CA6; text-decoration:none; border-bottom:1px solid #2A2A31; padding-bottom:2px;">{{ lnk.label }}</a>
+            </sc-for>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{}">
+class Component extends DCLogic {
+  LOTS = [
+    { id:1, name:"Blastoise · Base Set", tag:"Crimped & Cut · Error", img:"https://wenzeltcg.com/cdn/shop/files/7fc86b058ea9c03756c1f4bf2a51d306.jpg", start:120, increments:[10,25,50], peakTarget:340 },
+    { id:2, name:"Ascended Heroes ETB", tag:"Sealed · Elite Trainer Box", img:"https://wenzeltcg.com/cdn/shop/files/img949.jpg", start:40, increments:[5,10,25], peakTarget:115 },
+    { id:3, name:"Espeon V · Factory Error", tag:"One-of-one · Misprint", img:"https://wenzeltcg.com/cdn/shop/files/Doc000200024920149201000349201.jpg", start:80, increments:[5,10,25], peakTarget:245 },
+  ];
+  SIM = ["slabhunter_mike","PSA10orBust","binderqueen","ripcity_cole","errorhunter88","charizard_chaser","vault_vince","holofoil_hannah","the_pull_zone","gradedgrace"];
+  CHAT = ["that miscut is unreal","GO higher","saving for the slab 👀","+5 again lol","first!","Collin pull the Espeon","this is THE lot","outbid me i dare you","clean centering","need this one","wow","take my money"];
+  SHORTS = [
+    {id:"WIwR7uRUZLY",label:"Latest break"},{id:"J2EuF96D6r4",label:"Wenz Vault"},{id:"uDJHHbISLiw",label:"Gengar Bounty"},
+    {id:"KtEjCArDG74",label:"9 Greninja"},{id:"Tv_COprOiHk",label:"Prismatic restock"},{id:"8GrQvi6Z_v0",label:"Team Up Showdown"},
+    {id:"fbrsNAbuqXM",label:"Twilight Masquerade"},{id:"_Xx-06P-lho",label:"151 + Paldean Fates"},{id:"3wztgl9fqzI",label:"Journey Together"},
+    {id:"zG0jxJL-mFo",label:"Crown Zenith restock"},{id:"V3wRaAflPTY",label:"Pack Rip N Ship"},
+  ];
+  DOT_NAMES = ["Cold open","The big idea","How it fits","The Floor","Every screen","The mechanic","Card on file","The Booth","Back office","Built in","The difference","What you own"];
+  LOTDUR = 20000;
+
+  scrollRef = React.createRef();
+
+  state = {
+    soundOn:false, scrollPct:0, activeBeat:0,
+    lotIndex:0, phase:'PREVIEW', previewMs:3000,
+    price:120, highBidder:null, userIsHigh:false,
+    timeLeftMs:20000, soldMs:0, resultMs:0,
+    chat:[], viewers:1247, popcorn:false, priceTickToggle:false, showRing:true,
+    boothPhase:'idle', boothCountdown:20, boothPrice:40, boothFeed:[], boothBanned:{}, boothViewers:1180, boothDuration:20, boothLotIndex:0,
+    boTab:'Overview', boTimer:20, boRequireCard:true,
+    coverCountdown:'00:00:00',
+  };
+
+  componentDidMount(){
+    this.reduced = !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+    this.last = performance.now();
+    this.simAcc=0; this.simNext=1600; this.chatAcc=0; this.chatNext=1400; this.viewAcc=0; this.viewNext=3000;
+    this.loop = setInterval(()=>this.masterTick(), 200);
+    this.setState({coverCountdown:this.computeCover()});
+    this._setupTries=0;
+    this.trySetup();
+    this._key = (e)=>this.onKey(e);
+    window.addEventListener('keydown', this._key);
+    this._resize = ()=>this.resizeAllYT();
+    window.addEventListener('resize', this._resize);
+  }
+  componentWillUnmount(){
+    clearInterval(this.loop);
+    if(this.boothTimer) clearInterval(this.boothTimer);
+    if(this._boothBidT) clearInterval(this._boothBidT);
+    window.removeEventListener('keydown', this._key);
+    window.removeEventListener('resize', this._resize);
+    if(this.io) this.io.disconnect();
+    if(this.revealIO) this.revealIO.disconnect();
+    if(this.ytIO) this.ytIO.disconnect();
+  }
+  componentDidUpdate(prev){
+    if(!this.state.soundOn || !this.actx) return;
+    const a=prev, b=this.state;
+    if(a.phase!=='SOLD' && b.phase==='SOLD'){ this.sSold(); if(b.userIsHigh) setTimeout(()=>this.sWin(), 280); }
+    if(b.phase==='LIVE' || b.phase==='FINAL'){
+      const sa=Math.ceil(a.timeLeftMs/1000), sb=Math.ceil(b.timeLeftMs/1000);
+      if(sb!==sa && sb<=5 && sb>0) this.sTick();
+    }
+  }
+
+  /* ---------- engine ---------- */
+  masterTick(){
+    const now=performance.now(); const dt=Math.min(450, now-this.last); this.last=now;
+    this.stepPhase(dt);
+    const ph=this.state.phase;
+    if(ph==='LIVE' || ph==='FINAL'){
+      this.simAcc+=dt; if(this.simAcc>=this.simNext){ this.simAcc=0; this.simNext=1500+Math.random()*2500; this.simBid(); }
+      this.chatAcc+=dt; if(this.chatAcc>=this.chatNext){ this.chatAcc=0; this.chatNext=1200+Math.random()*1500; this.pushChat(); }
+    }
+    this.viewAcc+=dt; if(this.viewAcc>=this.viewNext){ this.viewAcc=0; this.viewNext=2500+Math.random()*1800; this.jitterViewers(); }
+    if(this._coverAcc===undefined) this._coverAcc=0;
+    this._coverAcc+=dt; if(this._coverAcc>=1000){ this._coverAcc=0; this.setState({coverCountdown:this.computeCover()}); }
+  }
+  stepPhase(dt){
+    this.setState(prev=>{
+      let p={...prev};
+      if(p.phase==='PREVIEW'){
+        p.previewMs-=dt;
+        if(p.previewMs<=0){ p.phase='LIVE'; p.timeLeftMs=this.LOTDUR; }
+      } else if(p.phase==='LIVE' || p.phase==='FINAL'){
+        p.timeLeftMs-=dt;
+        if(p.timeLeftMs<=0){ p.timeLeftMs=0; p.phase='SOLD'; p.soldMs=1600; }
+        else { p.phase = p.timeLeftMs<=3000 ? 'FINAL' : 'LIVE'; }
+      } else if(p.phase==='SOLD'){
+        p.soldMs-=dt; if(p.soldMs<=0){ p.phase='RESULT'; p.resultMs=3400; }
+      } else if(p.phase==='RESULT'){
+        p.resultMs-=dt;
+        if(p.resultMs<=0){
+          const ni=(p.lotIndex+1)%this.LOTS.length;
+          p.lotIndex=ni; p.phase='PREVIEW'; p.previewMs=3000;
+          p.price=this.LOTS[ni].start; p.highBidder=null; p.userIsHigh=false; p.popcorn=false;
+        }
+      }
+      return p;
+    });
+  }
+  stepFor(price, lot){ lot=lot||this.LOTS[this.state.lotIndex]; if(price<100) return lot.increments[0]; if(price<=300) return lot.increments[1]; return lot.increments[2]; }
+  simBid(){
+    this.setState(prev=>{
+      if(prev.phase!=='LIVE' && prev.phase!=='FINAL') return null;
+      const lot=this.LOTS[prev.lotIndex];
+      const step=this.stepFor(prev.price, lot);
+      if(prev.price+step > lot.peakTarget) return null;
+      const handle='@'+this.SIM[Math.floor(Math.random()*this.SIM.length)];
+      let p={...prev, price:prev.price+step, highBidder:handle, userIsHigh:false, priceTickToggle:!prev.priceTickToggle};
+      if(p.timeLeftMs<=6000){ p.timeLeftMs+=5000; p.popcorn=true; this.flashPopcorn(); }
+      return p;
+    });
+  }
+  BID_COOLDOWN = 2200;
+  onBid=()=>{
+    const now=performance.now();
+    if(now < (this.bidCooldownTs||0)) return; // cooldown active
+    let placed=false;
+    this.setState(prev=>{
+      if(prev.phase!=='LIVE' && prev.phase!=='FINAL') return null;
+      placed=true;
+      const lot=this.LOTS[prev.lotIndex];
+      const step=this.stepFor(prev.price, lot);
+      let p={...prev, price:prev.price+step, highBidder:'You', userIsHigh:true, priceTickToggle:!prev.priceTickToggle, showRing:false};
+      // every user bid extends the clock by 5s (capped) — popcorn anti-snipe
+      p.timeLeftMs = Math.min(this.LOTDUR+5000, p.timeLeftMs + 5000);
+      p.popcorn=true; this.flashPopcorn();
+      return p;
+    });
+    if(placed){ this.bidCooldownTs = now + this.BID_COOLDOWN; if(this.state.soundOn) this.sBlip(); this.forceUpdate(); }
+  };
+  flashPopcorn(){ clearTimeout(this._popT); this._popT=setTimeout(()=>this.setState({popcorn:false}), 650); }
+  pushChat(){ this.setState(prev=>{ const h='@'+this.SIM[Math.floor(Math.random()*this.SIM.length)]; const t=this.CHAT[Math.floor(Math.random()*this.CHAT.length)]; return {chat:[...prev.chat,{handle:h,text:t}].slice(-8)}; }); }
+  jitterViewers(){ this.setState(prev=>{ let v=prev.viewers+(Math.floor(Math.random()*9)-4); if(v<1180)v=1180; if(v>1320)v=1320; let bv=prev.boothViewers+(Math.floor(Math.random()*7)-3); if(bv<1100)bv=1100; if(bv>1260)bv=1260; return {viewers:v, boothViewers:bv}; }); }
+
+  /* ---------- booth ---------- */
+  boothStart=()=>{
+    if(this.state.boothPhase==='running') return;
+    const lot=this.LOTS[this.state.boothLotIndex];
+    this.setState({boothPhase:'running', boothCountdown:this.state.boothDuration, boothPrice:lot.start, boothFeed:[]});
+    this.boothTimer=setInterval(()=>this.boothTick(), 1000);
+    this._boothBidT=setInterval(()=>this.boothBid(), 800+Math.random()*900);
+  };
+  boothTick(){ this.setState(p=>({boothCountdown:Math.max(0,p.boothCountdown-1)}), ()=>{ if(this.state.boothCountdown<=0 && this.state.boothPhase==='running') this.boothEnd(); }); }
+  boothBid(){ this.setState(p=>{ if(p.boothPhase!=='running') return null; const lot=this.LOTS[p.boothLotIndex]; const step=this.stepFor(p.boothPrice, lot); if(p.boothPrice+step>lot.peakTarget) return null; const pool=this.SIM.filter(h=>!p.boothBanned['@'+h]); if(!pool.length) return null; const handle='@'+pool[Math.floor(Math.random()*pool.length)]; const feed=[{handle, amt:p.boothPrice+step, ts:this.clock()}, ...p.boothFeed].slice(0,9); let np={boothPrice:p.boothPrice+step, boothFeed:feed}; if(p.boothCountdown<=6){ np.boothCountdown=p.boothCountdown+5; } return np; }); }
+  boothEnd=()=>{ if(this.boothTimer) clearInterval(this.boothTimer); if(this._boothBidT) clearInterval(this._boothBidT); this.setState({boothPhase:'ended'}); };
+  boothAdvance=()=>{ if(this.boothTimer) clearInterval(this.boothTimer); if(this._boothBidT) clearInterval(this._boothBidT); this.setState(p=>{ const ni=(p.boothLotIndex+1)%this.LOTS.length; return {boothLotIndex:ni, boothPhase:'idle', boothFeed:[], boothPrice:this.LOTS[ni].start, boothCountdown:p.boothDuration}; }); };
+  boothBan(handle){ this.setState(p=>({boothBanned:{...p.boothBanned, [handle]:true}})); }
+  clock(){ const d=new Date(); return String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0')+':'+String(d.getSeconds()).padStart(2,'0'); }
+
+  /* ---------- cover countdown ---------- */
+  computeCover(){
+    const now=new Date(); const add=(5-now.getDay()+7)%7;
+    const target=new Date(now); target.setDate(now.getDate()+add); target.setHours(19,0,0,0);
+    if(target<=now) target.setDate(target.getDate()+7);
+    let diff=Math.max(0, Math.floor((target-now)/1000));
+    const h=Math.floor(diff/3600), m=Math.floor(diff%3600/60), s=diff%60;
+    return String(h).padStart(2,'0')+':'+String(m).padStart(2,'0')+':'+String(s).padStart(2,'0');
+  }
+
+  /* ---------- sound ---------- */
+  toggleSound=()=>{ const on=!this.state.soundOn; this.setState({soundOn:on}); if(on){ this.ensureAudio(); this.sBlip(); } };
+  ensureAudio(){ try{ if(!this.actx){ const AC=window.AudioContext||window.webkitAudioContext; this.actx=new AC(); } if(this.actx.state==='suspended') this.actx.resume(); }catch(e){} }
+  tone(freq,dur,type,vol){ if(!this.actx) return; const t=this.actx.currentTime; const o=this.actx.createOscillator(); const g=this.actx.createGain(); o.type=type; o.frequency.value=freq; g.gain.setValueAtTime(0.0001,t); g.gain.linearRampToValueAtTime(vol,t+0.01); g.gain.exponentialRampToValueAtTime(0.0001,t+dur); o.connect(g); g.connect(this.actx.destination); o.start(t); o.stop(t+dur+0.02); }
+  sBlip(){ this.ensureAudio(); this.tone(660,0.12,'triangle',0.16); }
+  sTick(){ this.tone(440,0.05,'square',0.07); }
+  sSold(){ this.tone(523,0.16,'triangle',0.18); setTimeout(()=>this.tone(784,0.3,'triangle',0.18),110); }
+  sWin(){ [523,659,784,1046].forEach((f,i)=>setTimeout(()=>this.tone(f,0.24,'triangle',0.14), i*90)); }
+
+  /* ---------- DOM setup ---------- */
+  trySetup(){
+    const sc=document.querySelector('[data-scroll]');
+    if(sc){ this._sc=sc; this.setupDOM(); return; }
+    if((this._setupTries=(this._setupTries||0)+1) < 40) setTimeout(()=>this.trySetup(), 60);
+  }
+  setupDOM(){
+    const sc=this._sc; if(!sc) return;
+    this._check = ()=>{
+      const vh=window.innerHeight;
+      const docEl=document.documentElement;
+      const sy=window.scrollY || docEl.scrollTop || 0;
+      const max=docEl.scrollHeight - vh;
+      const pct=max>0?(sy/max*100):0;
+      // lazy youtube
+      sc.querySelectorAll('[data-yt]').forEach(el=>{ if(el.dataset.ytMounted) return; const r=el.getBoundingClientRect(); if(r.top < vh*1.1 && r.bottom > -vh*0.1){ this.mountYT(el); } });
+      // active beat = last section whose top has passed the viewport center
+      const cy=vh*0.42; let active=0;
+      sc.querySelectorAll('[data-beat]').forEach(el=>{ const r=el.getBoundingClientRect(); if(r.top<=cy){ active=parseInt(el.dataset.beat,10); } });
+      if(active!==this.state.activeBeat || Math.abs(pct-this.state.scrollPct)>0.1) this.setState({activeBeat:active, scrollPct:pct});
+    };
+    window.addEventListener('scroll', this._check, {passive:true});
+    this._check();
+    setTimeout(this._check, 120);
+    setTimeout(this._check, 600);
+  }
+  onKey(e){
+    if(e.key==='ArrowDown'||e.key==='PageDown'){ e.preventDefault(); this.goTo(this.state.activeBeat+1); }
+    else if(e.key==='ArrowUp'||e.key==='PageUp'){ e.preventDefault(); this.goTo(this.state.activeBeat-1); }
+  }
+  goTo(i){ const sc=this._sc||document.querySelector('[data-scroll]'); if(!sc) return; const secs=sc.querySelectorAll('[data-beat]'); const idx=Math.max(0,Math.min(secs.length-1,i)); const el=secs[idx]; if(el){ const top=el.getBoundingClientRect().top + (window.scrollY||document.documentElement.scrollTop||0) - 2; this.smoothScrollTo(Math.max(0,top)); } }
+  smoothScrollTo(target){
+    if(this.reduced){ window.scrollTo(0, target); if(this._check) this._check(); return; }
+    if(this._scrollRAF) cancelAnimationFrame(this._scrollRAF);
+    const start=window.scrollY||document.documentElement.scrollTop||0;
+    const dist=target-start; const dur=Math.min(700, Math.max(280, Math.abs(dist)*0.5)); const t0=performance.now();
+    const ease=(p)=>1-Math.pow(1-p,3);
+    const step=(now)=>{ const p=Math.min(1,(now-t0)/dur); window.scrollTo(0, start+dist*ease(p)); if(this._check) this._check(); if(p<1) this._scrollRAF=requestAnimationFrame(step); };
+    this._scrollRAF=requestAnimationFrame(step);
+  }
+
+  /* ---------- youtube loop ---------- */
+  mountYT(container){
+    if(!container || container.dataset.ytMounted) return;
+    container.dataset.ytMounted='1';
+    const inner=document.createElement('div'); container.appendChild(inner);
+    const make=()=>{
+      try{
+        const player=new YT.Player(inner,{
+          videoId:'WIwR7uRUZLY',
+          playerVars:{autoplay:1,mute:1,controls:0,modestbranding:1,playsinline:1,start:34,rel:0,fs:0,disablekb:1,iv_load_policy:3,cc_load_policy:0},
+          events:{
+            onReady:(e)=>{ try{ e.target.mute(); e.target.playVideo(); }catch(_){} setTimeout(()=>this.sizeIframe(container, player.getIframe?player.getIframe():null), 60); },
+            onStateChange:(e)=>{ if(e.data===YT.PlayerState.ENDED || e.data===YT.PlayerState.PAUSED){ try{ e.target.seekTo(34); e.target.playVideo(); }catch(_){} } }
+          }
+        });
+        container._wzplayer=player;
+        const iv=setInterval(()=>{ try{ const p=container._wzplayer; if(p && p.getCurrentTime){ const t=p.getCurrentTime(); if(t>=39 || t<33.5){ p.seekTo(34); } if(p.getPlayerState && p.getPlayerState()!==1){ p.playVideo(); } } }catch(_){} }, 500);
+        container._wziv=iv;
+      }catch(e){}
+    };
+    if(window.YT && window.YT.Player){ make(); }
+    else { this._ytCbs=this._ytCbs||[]; this._ytCbs.push(make); window.onYouTubeIframeAPIReady=()=>{ (this._ytCbs||[]).forEach(f=>f()); this._ytCbs=[]; }; }
+  }
+  sizeIframe(container, iframe){
+    if(!iframe) return;
+    const cw=container.clientWidth, ch=container.clientHeight, ar=16/9;
+    let w,h; if(cw/ch>ar){ w=cw; h=cw/ar; } else { h=ch; w=ch*ar; }
+    // over-scale so YouTube's title bar (top), logo + scrubber (bottom) crop out of frame
+    const k=1.42; w*=k; h*=k;
+    iframe.style.position='absolute'; iframe.style.width=w+'px'; iframe.style.height=h+'px';
+    iframe.style.left=(cw-w)/2+'px'; iframe.style.top=(ch-h)/2+'px'; iframe.style.border='0'; iframe.style.pointerEvents='none';
+  }
+  resizeAllYT(){ const sc=this._sc||document.querySelector('[data-scroll]'); if(!sc) return; sc.querySelectorAll('[data-yt]').forEach(c=>{ try{ const p=c._wzplayer; if(p && p.getIframe) this.sizeIframe(c, p.getIframe()); }catch(_){} }); }
+
+  hideImg=(e)=>{ try{ e.target.style.display='none'; }catch(_){} };
+  coverImgFallback=(e)=>{ try{ e.target.src='https://i.ytimg.com/vi/uDJHHbISLiw/maxresdefault.jpg'; }catch(_){} };
+  founderFallback=(e)=>{ try{ e.target.src='https://i.ytimg.com/vi/WIwR7uRUZLY/maxresdefault.jpg'; }catch(_){} };
+
+  /* ---------- render ---------- */
+  buildAuc(){
+    const S=this.state; const lot=this.LOTS[S.lotIndex]; const step=this.stepFor(S.price, lot);
+    const cdRemain=Math.max(0,(this.bidCooldownTs||0)-performance.now());
+    const ceilT=Math.max(0,Math.ceil(S.timeLeftMs/1000));
+    const isPreview=S.phase==='PREVIEW'; const live=S.phase==='LIVE'||S.phase==='FINAL'; const isFinal=S.phase==='FINAL';
+    const resolved=S.phase==='SOLD'||S.phase==='RESULT';
+    const prevSec=Math.max(1,Math.ceil(S.previewMs/1000));
+    return {
+      thumb:'https://i.ytimg.com/vi/WIwR7uRUZLY/hqdefault.jpg',
+      viewersText:S.viewers.toLocaleString(),
+      chat:S.chat.slice(-6),
+      lotImg:lot.img, lotBadge:'LOT '+String(lot.id).padStart(2,'0'), lotName:lot.name, lotTag:lot.tag,
+      priceText:'$'+S.price,
+      highBidderText: live ? (S.highBidder ? (S.userIsHigh?'You — high bidder':S.highBidder+' — high bidder') : 'Opening bid') : (resolved ? (S.userIsHigh?'You — winning bid':((S.highBidder||'—')+' — winning bid')) : '—'),
+      showPopcorn: S.popcorn && live,
+      clockLabel: isFinal?'Closing':'Time left',
+      countdownText:'0:'+String(ceilT).padStart(2,'0'),
+      clockColor: isFinal?'#FF3340':'#F6F5F2',
+      progressColor: isFinal?'#FF3340':'#D6FF3F',
+      progressPct: Math.max(0,Math.min(100, S.timeLeftMs/this.LOTDUR*100)),
+      isPreview, previewText:'Starts in '+prevSec+'…',
+      isResolved:resolved,
+      resultUserWon: S.phase==='RESULT' && S.userIsHigh,
+      resultSimWon: S.phase==='RESULT' && !S.userIsHigh,
+      resultTitle: S.userIsHigh ? 'You won.' : ('Won by '+(S.highBidder||'@bidder')+' · $'+S.price),
+      soldPriceText:'$'+S.price,
+      canBid: live && cdRemain<=0,
+      bidDisabled: !live || cdRemain>0,
+      bidLabel: live ? (cdRemain>0 ? ('Bid again in '+Math.ceil(cdRemain/1000)+'s') : ('BID $'+(S.price+step))) : (isPreview ? ('Starts in '+prevSec) : (resolved ? 'SOLD' : '…')),
+      showBidRing: S.showRing && live && cdRemain<=0,
+      onBid:this.onBid,
+      priceAnim: this.reduced ? 'none' : (S.priceTickToggle ? 'wzTick 0.18s cubic-bezier(0.34,1.56,0.64,1) both' : 'wzTickB 0.18s cubic-bezier(0.34,1.56,0.64,1) both'),
+      upNext: [1,2].map(d=>this.LOTS[(S.lotIndex+d)%this.LOTS.length]).map(l=>({img:l.img, badge:'LOT '+String(l.id).padStart(2,'0'), name:l.name})),
+    };
+  }
+  renderVals(){
+    const S=this.state;
+    const auc=this.buildAuc();
+    const dots=this.DOT_NAMES.map((name,i)=>({ name, color: i===S.activeBeat?'#D6FF3F':'#3A3A42', scale: i===S.activeBeat?'1.4':'1', onClick:()=>this.goTo(i) }));
+
+    // booth
+    const bLot=this.LOTS[S.boothLotIndex];
+    const booth={
+      statusText: S.boothPhase==='running'?'● Auction live':(S.boothPhase==='ended'?'Lot ended':'Ready to start'),
+      viewers:S.boothViewers.toLocaleString(),
+      lot:{img:bLot.img, name:bLot.name, badge:'LOT '+String(bLot.id).padStart(2,'0')},
+      countdownText:(S.boothPhase==='running'?S.boothCountdown:S.boothDuration)+'s',
+      priceText:'$'+S.boothPrice,
+      priceColor: (S.boothPhase==='running' && S.boothCountdown<=3)?'#FF3340':'#D6FF3F',
+      duration:S.boothDuration,
+      onDur:(e)=>this.setState({boothDuration:+e.target.value}),
+      onStart:this.boothStart, onEnd:this.boothEnd, onAdvance:this.boothAdvance,
+      feed:S.boothFeed.map(f=>({handle:f.handle, amtText:'$'+f.amt, ts:f.ts})),
+      feedEmpty:S.boothFeed.length===0,
+      highBid:S.boothFeed.length?'$'+S.boothFeed[0].amt:'$'+S.boothPrice,
+      highHandle:S.boothFeed.length?S.boothFeed[0].handle:'—',
+      queue:[1,2].map(d=>this.LOTS[(S.boothLotIndex+d)%this.LOTS.length]).map(l=>({img:l.img, name:l.name})),
+      mods:this.SIM.slice(0,7).map(h=>{ const banned=!!S.boothBanned['@'+h]; return { handle:'@'+h, color:banned?'#3A3A42':'#C9C9D1', deco:banned?'line-through':'none', banColor:banned?'#6E6E78':'#FF3340', banBg:banned?'transparent':'rgba(255,51,64,0.12)', banLabel:banned?'blocked':'Ban', onBan:()=>this.boothBan('@'+h) }; }),
+    };
+
+    // back office
+    const tabs=['Overview','Auctions','Bidders','Orders','Settings'].map(name=>({ name, onClick:()=>this.setState({boTab:name}), active:S.boTab===name, color:S.boTab===name?'#202223':'#6D7175', weight:S.boTab===name?'600':'400', border:S.boTab===name?'#202223':'transparent' }));
+    const nav=[{label:'Home',sel:false},{label:'Orders',sel:false},{label:'Products',sel:false},{label:'Customers',sel:false},{label:'Auction Floor',sel:true},{label:'Analytics',sel:false}].map(n=>({ label:n.label, bg:n.sel?'#fff':'transparent', color:n.sel?'#202223':'#42474C', weight:n.sel?'600':'500', dot:n.sel?'#008060':'#B5B5B5' }));
+    const bo={
+      tabs, nav,
+      isOverview:S.boTab==='Overview', isAuctions:S.boTab==='Auctions', isBidders:S.boTab==='Bidders', isOrders:S.boTab==='Orders', isSettings:S.boTab==='Settings',
+      topLots:[{name:'Blastoise · Base Set (error)',price:'$340'},{name:'Espeon V · factory error',price:'$245'},{name:'Charizard VMAX · Brilliant Stars',price:'$190'}],
+      shows:[{name:'Ascended Heroes Rip N Ship',when:'Fri · 7:00 PM ET',status:'Scheduled'},{name:'Showdown Saturday',when:'Sat · 7:00 PM ET',status:'Scheduled'},{name:'Wenz Vault',when:'Sun · 6:00 PM ET',status:'Draft'}],
+      lots:[{name:'Ascended Heroes ETB',start:'$40',format:'Auction'},{name:'151 Booster Bundle',start:'$55',format:'Auction'},{name:'Crown Zenith Booster',start:'$8',format:'Buy It Now'}],
+      bidders:[
+        {handle:'@slabhunter_mike',name:'Mike R.',card:'✓ on file',cardColor:'#008060',spend:'$2,140',status:'Active',statusColor:'#202223'},
+        {handle:'@PSA10orBust',name:'Dana L.',card:'✓ on file',cardColor:'#008060',spend:'$980',status:'Active',statusColor:'#202223'},
+        {handle:'@ripcity_cole',name:'Cole T.',card:'✗ declined',cardColor:'#B98900',spend:'$310',status:'Card declined',statusColor:'#B98900'},
+        {handle:'@vault_vince',name:'Vince P.',card:'✓ on file',cardColor:'#008060',spend:'$1,520',status:'Active',statusColor:'#202223'},
+        {handle:'@errorhunter88',name:'—',card:'✗ none',cardColor:'#8C9196',spend:'$0',status:'Banned',statusColor:'#D72C0D'},
+      ],
+      orders:[
+        {id:'#WZ-2041',winner:'@slabhunter_mike',lots:'4 lots',total:'$612',status:'Finalized',badgeBg:'#F1F8F5',badgeColor:'#008060',badgeBorder:'#CDE8DC'},
+        {id:'#WZ-2042',winner:'@PSA10orBust',lots:'2 lots',total:'$245',status:'Draft · live',badgeBg:'#FFF6E6',badgeColor:'#B98900',badgeBorder:'#F2D998'},
+        {id:'#WZ-2043',winner:'@vault_vince',lots:'3 lots',total:'$430',status:'Draft · live',badgeBg:'#FFF6E6',badgeColor:'#B98900',badgeBorder:'#F2D998'},
+        {id:'#WZ-2040',winner:'@binderqueen',lots:'1 lot',total:'$95',status:'Fulfilled',badgeBg:'#F1F8F5',badgeColor:'#008060',badgeBorder:'#CDE8DC'},
+      ],
+      timer:S.boTimer, onTimer:(e)=>this.setState({boTimer:+e.target.value}),
+      cardToggleBg:S.boRequireCard?'#008060':'#C9CCCF', cardToggleX:S.boRequireCard?'20px':'2px', onToggleCard:()=>this.setState({boRequireCard:!S.boRequireCard}),
+    };
+
+    const shorts=this.SHORTS.map(s=>({ href:'https://www.youtube.com/watch?v='+s.id, thumb:'https://i.ytimg.com/vi/'+s.id+'/hqdefault.jpg', label:s.label }));
+    const diffRows=[
+      {bad:'Marketplaces take a cut of every hit.', good:'You keep the margin.'},
+      {bad:'Their app, their brand on your show.', good:'Your brand, your domain.'},
+      {bad:'Off-the-shelf auctions can\u2019t run a sub-minute timer.', good:'10–30s lots with popcorn.'},
+      {bad:'Manual invoicing after the show.', good:'Winners auto-charged, card on file.'},
+    ];
+    const links=[
+      {label:'YouTube',href:'https://www.youtube.com/@Wenzel_TCG'},
+      {label:'Instagram',href:'https://www.instagram.com/wenzel_tcg/'},
+      {label:'TikTok',href:'https://www.tiktok.com/@wenzel_tcg'},
+      {label:'eBay',href:'https://www.ebay.com/str/wenzelspokemon'},
+      {label:'Discord',href:'https://discord.gg/wenzeltcg'},
+      {label:'Shop',href:'https://wenzeltcg.com/collections/all'},
+    ];
+
+    return {
+      soundOn:S.soundOn, soundOff:!S.soundOn, onToggleSound:this.toggleSound,
+      scrollPct:S.scrollPct, dots, scrollRef:this.scrollRef,
+      coverCountdown:S.coverCountdown,
+      hideImg:this.hideImg, coverImgFallback:this.coverImgFallback, founderFallback:this.founderFallback,
+      aucFloor:{...auc, playerMount:'wz-yt-floor'},
+      aucM5p:{...auc, playerMount:'wz-yt-m5p'},
+      aucM5d:{...auc, playerMount:'wz-yt-m5d'},
+      booth, bo, shorts, diffRows, links,
+    };
+  }
+}
+</script>
+</body>
+</html>

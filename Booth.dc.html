@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<div style="background:#0F0F12; padding:18px; display:flex; flex-direction:column; gap:16px; font-family:'Archivo',sans-serif; color:#F6F5F2;">
+
+  <!-- TOP: preview/controls + bid feed -->
+  <div style="display:grid; grid-template-columns:1.15fr 1fr; gap:16px; align-items:start;">
+
+    <!-- LEFT -->
+    <div style="display:flex; flex-direction:column; gap:14px;">
+      <div style="position:relative; border-radius:12px; overflow:hidden; border:1px solid #2A2A31; aspect-ratio:16/9;">
+        <img src="{{ b.lot.img }}" alt="" style="position:absolute; inset:0; width:100%; height:100%; object-fit:cover;" />
+        <div id="wz-yt-booth" data-yt="1" style="position:absolute; inset:0; overflow:hidden; pointer-events:none;"></div>
+        <div style="position:absolute; inset:0; background:linear-gradient(180deg,rgba(15,15,18,0.35) 0%,transparent 35%,rgba(15,15,18,0.75) 100%);"></div>
+        <span style="position:absolute; top:11px; left:11px; display:inline-flex; align-items:center; gap:6px; background:#FF3340; color:#fff; font-family:'Titan One',sans-serif; font-size:11px; letter-spacing:0.04em; padding:4px 10px; border-radius:999px;"><span style="width:6px;height:6px;border-radius:999px;background:#fff;animation:wzBlink 1.4s infinite;"></span>LIVE</span>
+        <span style="position:absolute; top:11px; right:11px; font-family:'IBM Plex Mono',monospace; font-size:11px; color:#fff; background:rgba(15,15,18,0.55); border:1px solid rgba(255,255,255,0.12); border-radius:999px; padding:4px 10px;">{{ b.viewers }} watching</span>
+        <span style="position:absolute; bottom:11px; left:11px; font-family:'IBM Plex Mono',monospace; font-size:11px; color:#C9C9D1;">{{ b.statusText }}</span>
+      </div>
+
+      <div style="display:flex; align-items:center; gap:12px; background:#18181D; border:1px solid #2A2A31; border-radius:12px; padding:12px 14px;">
+        <img src="{{ b.lot.img }}" alt="" style="width:48px;height:48px;border-radius:9px;object-fit:cover;border:1px solid #2A2A31; flex:0 0 auto;" />
+        <div style="min-width:0; flex:1 1 auto;">
+          <div style="font-family:'Titan One',sans-serif; font-size:10px; letter-spacing:0.05em; color:#F2C14E;">{{ b.lot.badge }} · ON AIR</div>
+          <div style="font-weight:700; font-size:15px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">{{ b.lot.name }}</div>
+        </div>
+        <div style="text-align:right; flex:0 0 auto;">
+          <div style="font-family:'IBM Plex Mono',monospace; font-size:11px; color:#9C9CA6;">{{ b.countdownText }}</div>
+          <div style="font-family:'Anton',sans-serif; font-size:26px; line-height:0.9; color:{{ b.priceColor }};">{{ b.priceText }}</div>
+        </div>
+      </div>
+
+      <div style="display:flex; gap:9px;">
+        <button onClick="{{ b.onStart }}" style="flex:1 1 auto; display:inline-flex; align-items:center; justify-content:center; gap:8px; cursor:pointer; border:none; background:#D6FF3F; color:#0F0F12; font-family:'Archivo',sans-serif; font-weight:700; font-size:14px; padding:13px; border-radius:11px;" style-active="transform:scale(0.985);">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M7 5l13 7-13 7V5z"/></svg>Start lot
+        </button>
+        <button onClick="{{ b.onEnd }}" style="flex:0 0 auto; display:inline-flex; align-items:center; gap:7px; cursor:pointer; border:1px solid #2A2A31; background:#202027; color:#F6F5F2; font-family:'Archivo',sans-serif; font-weight:600; font-size:14px; padding:13px 16px; border-radius:11px;">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="6" width="12" height="12" rx="2"/></svg>End
+        </button>
+        <button onClick="{{ b.onAdvance }}" style="flex:0 0 auto; display:inline-flex; align-items:center; gap:7px; cursor:pointer; border:1px solid #2A2A31; background:#202027; color:#F6F5F2; font-family:'Archivo',sans-serif; font-weight:600; font-size:14px; padding:13px 16px; border-radius:11px;">
+          Advance<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 6l6 6-6 6M5 12h14"/></svg>
+        </button>
+      </div>
+
+      <div style="background:#18181D; border:1px solid #2A2A31; border-radius:11px; padding:13px 14px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; font-family:'IBM Plex Mono',monospace; font-size:12px; color:#9C9CA6; margin-bottom:9px;"><span>Lot duration</span><span style="color:#D6FF3F;">{{ b.duration }}s</span></div>
+        <input type="range" min="10" max="30" step="1" value="{{ b.duration }}" onChange="{{ b.onDur }}" style="width:100%; accent-color:#D6FF3F;" />
+      </div>
+    </div>
+
+    <!-- RIGHT: bid feed -->
+    <div style="background:#18181D; border:1px solid #2A2A31; border-radius:12px; padding:14px; display:flex; flex-direction:column; height:100%;">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+        <span style="font-family:'Titan One',sans-serif; font-size:12px; letter-spacing:0.04em; color:#9C9CA6;">LIVE BID FEED</span>
+        <span style="font-family:'IBM Plex Mono',monospace; font-size:11px; color:#6E6E78;">newest ↑</span>
+      </div>
+      <div style="position:relative; background:#0F0F12; border:1px solid #2A2A31; border-left:3px solid #D6FF3F; border-radius:11px; padding:12px 14px; margin-bottom:12px; display:flex; align-items:center; justify-content:space-between;">
+        <div>
+          <div style="display:inline-flex; align-items:center; gap:6px; font-family:'IBM Plex Mono',monospace; font-size:10px; letter-spacing:0.06em; color:#D6FF3F; text-transform:uppercase;"><span style="width:6px;height:6px;border-radius:999px;background:#D6FF3F;animation:wzBlink 1.4s infinite;"></span>Leading</div>
+          <div style="font-family:'IBM Plex Mono',monospace; font-size:13px; color:#F6F5F2; margin-top:3px;">{{ b.highHandle }}</div>
+        </div>
+        <div style="font-family:'Anton',sans-serif; font-size:32px; line-height:0.9; color:#D6FF3F;">{{ b.highBid }}</div>
+      </div>
+      <div style="flex:1 1 auto; min-height:196px; max-height:196px; overflow:hidden; display:flex; flex-direction:column; gap:6px;">
+        <sc-for list="{{ b.feed }}" as="f" hint-placeholder-count="0">
+          <div style="display:flex; align-items:center; justify-content:space-between; font-family:'IBM Plex Mono',monospace; font-size:12px; padding:8px 11px; border-radius:9px; background:#0F0F12; animation:wzChatIn 0.3s ease both;">
+            <span style="color:#C9C9D1;">{{ f.handle }}</span>
+            <span style="display:flex; gap:12px; align-items:center;"><span style="color:#F6F5F2;">{{ f.amtText }}</span><span style="color:#4A4A52;">{{ f.ts }}</span></span>
+          </div>
+        </sc-for>
+        <sc-if value="{{ b.feedEmpty }}" hint-placeholder-val="{{ true }}">
+          <div style="font-family:'IBM Plex Mono',monospace; font-size:12px; color:#4A4A52; text-align:center; margin:auto 0;">Press “Start lot” to open bidding.</div>
+        </sc-if>
+      </div>
+    </div>
+  </div>
+
+  <!-- BOTTOM STRIP: queue + moderation -->
+  <div style="display:grid; grid-template-columns:0.85fr 1.15fr; gap:16px; border-top:1px solid #2A2A31; padding-top:15px;">
+    <div>
+      <div style="font-family:'Titan One',sans-serif; font-size:11px; letter-spacing:0.04em; color:#9C9CA6; margin-bottom:10px;">UP NEXT</div>
+      <div style="display:flex; gap:9px;">
+        <sc-for list="{{ b.queue }}" as="q" hint-placeholder-count="0">
+          <div style="flex:1 1 0; min-width:0; display:flex; align-items:center; gap:9px; background:#18181D; border:1px solid #2A2A31; border-radius:10px; padding:9px;">
+            <img src="{{ q.img }}" alt="" style="width:30px;height:30px;border-radius:7px;object-fit:cover; flex:0 0 auto;" />
+            <span style="font-size:12px; font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">{{ q.name }}</span>
+          </div>
+        </sc-for>
+      </div>
+    </div>
+    <div>
+      <div style="font-family:'Titan One',sans-serif; font-size:11px; letter-spacing:0.04em; color:#9C9CA6; margin-bottom:10px;">VIEWERS · MODERATION</div>
+      <div style="display:flex; flex-wrap:wrap; gap:7px;">
+        <sc-for list="{{ b.mods }}" as="u" hint-placeholder-count="0">
+          <span style="display:inline-flex; align-items:center; gap:8px; background:#18181D; border:1px solid #2A2A31; border-radius:999px; padding:5px 6px 5px 12px;">
+            <span style="font-family:'IBM Plex Mono',monospace; font-size:12px; color:{{ u.color }}; text-decoration:{{ u.deco }};">{{ u.handle }}</span>
+            <button onClick="{{ u.onBan }}" aria-label="Ban {{ u.handle }}" style="cursor:pointer; border:none; background:{{ u.banBg }}; color:{{ u.banColor }}; font-family:'Archivo',sans-serif; font-weight:600; font-size:11px; padding:3px 9px; border-radius:999px;">{{ u.banLabel }}</button>
+          </span>
+        </sc-for>
+      </div>
+    </div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:980,&quot;height&quot;:620}}"></script>
+</body>
+</html>

@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<div style="position:relative; width:100%; height:100%; display:flex; background:#0F0F12; overflow:hidden; font-family:'Archivo',sans-serif; color:#F6F5F2;">
+
+  <!-- STAGE -->
+  <div style="position:relative; flex:1 1 62%; min-width:0;">
+    <img src="{{ s.thumb }}" alt="" style="position:absolute; inset:0; width:100%; height:100%; object-fit:cover;" />
+    <div id="{{ s.playerMount }}" data-yt="1" style="position:absolute; inset:0; pointer-events:none; overflow:hidden;"></div>
+    <div style="position:absolute; inset:0; background:linear-gradient(180deg, rgba(15,15,18,0.5) 0%, rgba(15,15,18,0.08) 24%, rgba(15,15,18,0.0) 50%, rgba(15,15,18,0.9) 100%);"></div>
+
+    <div style="position:absolute; top:16px; left:16px; right:16px; display:flex; align-items:center; justify-content:space-between;">
+      <span style="display:inline-flex; align-items:center; gap:7px; background:#FF3340; color:#F6F5F2; font-family:'Titan One',sans-serif; font-size:13px; letter-spacing:0.04em; padding:6px 12px; border-radius:999px;">
+        <span style="width:8px; height:8px; border-radius:999px; background:#F6F5F2; animation:wzBlink 1.4s ease-in-out infinite;"></span>LIVE
+      </span>
+      <span style="display:inline-flex; align-items:center; gap:7px; background:rgba(15,15,18,0.5); backdrop-filter:blur(6px); border:1px solid rgba(255,255,255,0.12); font-family:'IBM Plex Mono',monospace; font-variant-numeric:tabular-nums; font-size:13px; padding:6px 11px; border-radius:999px;">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M1.5 12S5 5 12 5s10.5 7 10.5 7-3.5 7-10.5 7S1.5 12 1.5 12Z"/><circle cx="12" cy="12" r="3"/></svg>
+        {{ s.viewersText }} watching
+      </span>
+    </div>
+
+    <!-- INFO BAND -->
+    <div style="position:absolute; left:0; right:0; bottom:0;">
+      <div style="display:flex; align-items:flex-end; justify-content:space-between; gap:16px; padding:18px 18px 14px;">
+        <div style="display:flex; align-items:center; gap:13px; min-width:0; flex:1 1 auto;">
+          <img src="{{ s.lotImg }}" alt="" style="width:56px; height:56px; border-radius:12px; object-fit:cover; border:1px solid rgba(255,255,255,0.16); flex:0 0 auto;" />
+          <div style="min-width:0;">
+            <div style="font-family:'Titan One',sans-serif; font-size:12px; letter-spacing:0.04em; color:#F2C14E;">{{ s.lotBadge }}</div>
+            <div style="font-weight:700; font-size:17px; line-height:1.2; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; text-shadow:0 1px 6px rgba(0,0,0,0.6);">{{ s.lotName }}</div>
+            <div style="font-size:12px; color:#C9C9D1; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; text-shadow:0 1px 4px rgba(0,0,0,0.6);">{{ s.lotTag }}</div>
+          </div>
+        </div>
+        <div style="text-align:right; flex:0 0 auto; position:relative;">
+          <sc-if value="{{ s.showPopcorn }}" hint-placeholder-val="{{ false }}">
+            <div style="position:absolute; right:0; bottom:84px; font-family:'Titan One',sans-serif; color:#F2C14E; font-size:26px; animation:wzPop5 0.6s ease-out both; text-shadow:0 0 18px rgba(242,193,78,0.5); white-space:nowrap;">+5s</div>
+          </sc-if>
+          <div style="display:flex; align-items:baseline; justify-content:flex-end; gap:14px;">
+            <span style="font-family:'IBM Plex Mono',monospace; font-variant-numeric:tabular-nums; font-weight:500; font-size:clamp(24px,3vw,38px); line-height:1; color:{{ s.clockColor }}; text-shadow:0 1px 6px rgba(0,0,0,0.6);">{{ s.countdownText }}</span>
+            <span style="font-family:'Anton',sans-serif; font-size:clamp(44px,5.5vw,76px); line-height:0.85; letter-spacing:-0.01em; color:#D6FF3F; text-shadow:0 0 26px rgba(214,255,63,0.35); animation:{{ s.priceAnim }};">{{ s.priceText }}</span>
+          </div>
+          <div style="font-family:'IBM Plex Mono',monospace; font-size:11px; color:#C9C9D1; margin-top:4px; text-shadow:0 1px 4px rgba(0,0,0,0.6);">{{ s.highBidderText }}</div>
+        </div>
+      </div>
+      <div style="height:5px; background:rgba(255,255,255,0.12); overflow:hidden;">
+        <div style="height:100%; background:{{ s.progressColor }}; width:{{ s.progressPct }}%; transition:width 1s linear;"></div>
+      </div>
+    </div>
+
+    <!-- PREVIEW overlay -->
+    <sc-if value="{{ s.isPreview }}" hint-placeholder-val="{{ false }}">
+      <div style="position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:9px; background:rgba(15,15,18,0.55); text-align:center;">
+        <div style="font-family:'Titan One',sans-serif; font-size:14px; color:#F2C14E;">{{ s.lotBadge }}</div>
+        <div style="font-family:'Anton',sans-serif; font-size:clamp(34px,4.5vw,56px); line-height:0.95; text-transform:uppercase; padding:0 32px;">{{ s.lotName }}</div>
+        <div style="font-size:14px; color:#9C9CA6;">{{ s.lotTag }}</div>
+        <div style="font-family:'IBM Plex Mono',monospace; font-size:15px; margin-top:12px; background:#202027; border:1px solid #2A2A31; padding:8px 16px; border-radius:999px;">{{ s.previewText }}</div>
+      </div>
+    </sc-if>
+
+    <!-- SOLD overlay -->
+    <sc-if value="{{ s.isResolved }}" hint-placeholder-val="{{ false }}">
+      <div style="position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:8px; background:rgba(15,15,18,0.72); text-align:center;">
+        <div style="font-family:'Anton',sans-serif; font-size:clamp(72px,11vw,130px); line-height:0.9; color:#F2C14E; text-shadow:0 0 36px rgba(242,193,78,0.45); animation:wzSold 0.5s cubic-bezier(0.34,1.56,0.64,1) both;">SOLD</div>
+        <sc-if value="{{ s.resultUserWon }}" hint-placeholder-val="{{ false }}">
+          <div style="font-family:'Anton',sans-serif; font-size:32px; color:#F2C14E; text-transform:uppercase;">{{ s.resultTitle }}</div>
+          <div style="font-size:13px; color:#C9C9D1;">Card on file · charged automatically · ships this week</div>
+        </sc-if>
+        <sc-if value="{{ s.resultSimWon }}" hint-placeholder-val="{{ false }}">
+          <div style="font-family:'IBM Plex Mono',monospace; font-size:16px;">{{ s.resultTitle }}</div>
+        </sc-if>
+      </div>
+    </sc-if>
+  </div>
+
+  <!-- RAIL -->
+  <div style="flex:0 0 36%; max-width:330px; display:flex; flex-direction:column; background:#141418; border-left:1px solid #2A2A31; min-height:0;">
+    <div style="padding:15px 15px 13px; border-bottom:1px solid #2A2A31;">
+      <div style="font-family:'Titan One',sans-serif; font-size:11px; letter-spacing:0.05em; color:#9C9CA6; margin-bottom:11px;">UP NEXT</div>
+      <div style="display:flex; flex-direction:column; gap:9px;">
+        <sc-for list="{{ s.upNext }}" as="q" hint-placeholder-count="0">
+          <div style="display:flex; align-items:center; gap:11px;">
+            <img src="{{ q.img }}" alt="" style="width:34px; height:34px; border-radius:8px; object-fit:cover; border:1px solid #2A2A31; flex:0 0 auto;" />
+            <div style="min-width:0;">
+              <div style="font-family:'Titan One',sans-serif; font-size:10px; color:#9C9CA6;">{{ q.badge }}</div>
+              <div style="font-size:13px; font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">{{ q.name }}</div>
+            </div>
+          </div>
+        </sc-for>
+      </div>
+    </div>
+
+    <div style="display:flex; align-items:center; justify-content:space-between; padding:11px 15px 8px;">
+      <span style="font-family:'Titan One',sans-serif; font-size:11px; letter-spacing:0.05em; color:#9C9CA6;">LIVE CHAT</span>
+      <span style="font-family:'IBM Plex Mono',monospace; font-size:11px; color:#6E6E78;">{{ s.viewersText }} here</span>
+    </div>
+    <div style="flex:1 1 auto; min-height:0; overflow:hidden; display:flex; flex-direction:column; justify-content:flex-end; gap:7px; padding:0 15px 12px; -webkit-mask-image:linear-gradient(180deg, transparent 0%, #000 16%);">
+      <sc-for list="{{ s.chat }}" as="m" hint-placeholder-count="5">
+        <div style="font-size:13px; line-height:1.35; animation:wzChatIn 0.32s cubic-bezier(0.2,0.8,0.2,1) both;">
+          <span style="font-family:'IBM Plex Mono',monospace; color:#8C8C96;">{{ m.handle }}</span>
+          <span style="margin-left:6px; color:#E6E6EA;">{{ m.text }}</span>
+        </div>
+      </sc-for>
+    </div>
+
+    <div style="flex:0 0 auto; padding:13px 15px 15px; border-top:1px solid #2A2A31; background:#18181D;">
+      <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:10px;">
+        <span style="font-family:'IBM Plex Mono',monospace; font-size:11px; color:#9C9CA6;">{{ s.highBidderText }}</span>
+        <span style="font-family:'IBM Plex Mono',monospace; font-size:11px; color:#9C9CA6;">{{ s.clockLabel }} {{ s.countdownText }}</span>
+      </div>
+      <sc-if value="{{ s.canBid }}" hint-placeholder-val="{{ false }}">
+        <button onClick="{{ s.onBid }}" style="width:100%; border:none; cursor:pointer; background:#D6FF3F; color:#0F0F12; font-family:'Archivo',sans-serif; font-weight:700; font-size:17px; letter-spacing:0.01em; padding:15px; border-radius:12px;" style-active="transform:scale(0.985);">{{ s.bidLabel }}</button>
+      </sc-if>
+      <sc-if value="{{ s.bidDisabled }}" hint-placeholder-val="{{ true }}">
+        <div style="width:100%; text-align:center; background:#202027; color:#9C9CA6; font-family:'Archivo',sans-serif; font-weight:700; font-size:17px; padding:15px; border-radius:12px; border:1px solid #2A2A31;">{{ s.bidLabel }}</div>
+      </sc-if>
+    </div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:900,&quot;height&quot;:506}}"></script>
+</body>
+</html>
